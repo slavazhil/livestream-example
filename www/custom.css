@@ -1,0 +1,12 @@
+video {
+    width: 100%;
+    background-color: black;
+}
+
+input {
+    width: 100%;
+}
+
+#list > tr {
+    cursor: pointer;
+}

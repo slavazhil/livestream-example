@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/simple.css">
+    <link rel="stylesheet" href="/custom.css">
+    <title>livestream-example</title>
+</head>
+
+<body>
+    <header>
+        <h1>livestream-example</h1>
+    </header>
+
+    <main>
+        <p id="publisher-message">Enter a name and press <kbd>STREAM</kbd> to start broadcasting yourself</p>
+        <video id="publisher-video" autoplay muted controls playsinline></video>
+        <input id="publisher-name" type="text" placeholder="enter a name here">
+        <input id="stream" type="button" value="STREAM">
+
+        <p id="subscriber-message">Press <kbd>WATCH</kbd> and select a name from the list below to watch others</p>
+        <video id="subscriber-video" autoplay muted controls playsinline></video>
+        <input id="watch" type="button" value="WATCH">
+        <table>
+            <thead>
+                <tr>
+                    <th>Streamer Name</th>
+                </tr>
+            </thead>
+            <tbody id="list">
+            </tbody>
+        </table>
+    </main>
+
+    <footer>
+        <p>livestream-example</p>
+    </footer>
+
+    <script src="/client.js"></script>
+    <script src="/main.js"></script>
+</body>
+
+</html>
