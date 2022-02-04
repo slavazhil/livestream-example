@@ -54,7 +54,8 @@ class Client {
     }
 
     newWebsocket() {
-        this.ws = new WebSocket(`ws://${location.host}/ws?kind=${this.kind}&name=${this.name}`);
+        // this.ws = new WebSocket(`ws://${location.host}/ws?kind=${this.kind}&name=${this.name}`);
+        this.ws = new WebSocket(`wss://${location.host}/ws?kind=${this.kind}&name=${this.name}`);
         this.ws.onopen = (event) => { console.log(this.kind, "websocket open:", event); }
         this.ws.onclose = (event) => { console.log(this.kind, "websocket closed:", event); }
         this.ws.onerror = (error) => { console.log(this.kind, "websocket error:", error); }
