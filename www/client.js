@@ -54,7 +54,7 @@ class Client {
         this.dc.onopen = (event) => { console.log(this.kind, "datachannel open"); }
         this.dc.onclose = (event) => { console.log(this.kind, "datachannel closed"); }
         this.dc.onerror = (event) => { console.log(this.kind, "datachannel error"); }
-        this.dc.onmessage = (event) => { console.log(this.kind, "datachannel message"); }
+        this.dc.onmessage = (event) => { console.log(this.kind, "datachannel message:", event); }
     }
 
     async newWebsocket() {
