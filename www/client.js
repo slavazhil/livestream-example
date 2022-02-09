@@ -53,7 +53,7 @@ class Client {
         this.dc = this.pc.createDataChannel(this.kind);
         this.dc.onopen = (event) => { console.log(this.kind, "datachannel open"); }
         this.dc.onclose = (event) => { console.log(this.kind, "datachannel closed"); }
-        this.dc.onerror = (error) => { console.log(this.kind, "datachannel error"); }
+        this.dc.onerror = (event) => { console.log(this.kind, "datachannel error"); }
         this.dc.onmessage = (event) => { console.log(this.kind, "datachannel message"); }
     }
 
@@ -61,14 +61,17 @@ class Client {
         return new Promise((resolve, reject) => {
             const protocol = location.protocol === "https:" ? "wss:" : "ws:";
             this.ws = new WebSocket(`${protocol}//${location.host}/ws?kind=${this.kind}&name=${this.name}`);
-            this.ws.onopen = (event) => { console.log(this.kind, "websocket open:", event); resolve(); }
-            this.ws.onclose = (event) => { console.log(this.kind, "websocket closed:", event); }
-            this.ws.onerror = (error) => { console.log(this.kind, "websocket error:", error); reject(); }
+            this.ws.onopen = (event) => { console.log(this.kind, "websocket open"); resolve(); }
+            this.ws.onclose = (event) => { console.log(this.kind, "websocket closed"); }
+            this.ws.onerror = (event) => { console.log(this.kind, "websocket error"); reject(); }
             this.ws.onmessage = (event) => {
-                console.log(this.kind, "websocket message", event);
                 const data = JSON.parse(event.data);
-                if (data.answer) { this.pc.setRemoteDescription(data.answer); }
-                else if (data.publishers) { listPublishers(data.publishers); }
+                if (data.answer) {
+                    console.log(this.kind, "peerconnection got answer");
+                    this.pc.setRemoteDescription(data.answer);
+                } else if (data.publishers) {
+                    listPublishers(data.publishers);
+                }
             };
         })
     }
