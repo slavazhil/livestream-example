@@ -2,9 +2,12 @@ const WEBRTC_CONFIG = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] }
 
 class Client {
     constructor(kind, name) {
-        this.kind = kind; // publisher || subscriber
-        this.name = name; // publishers only
-        this.newWebsocket();
+        this.kind = kind; // "publisher" || "subscriber"
+        this.name = name; // for publishers only
+    }
+
+    async init() {
+        await this.newWebsocket();
         this.newPeerconnection();
         this.newDatachannel();
     }
@@ -34,12 +37,13 @@ class Client {
 
     newPeerconnection() {
         this.pc = new RTCPeerConnection(WEBRTC_CONFIG);
-        this.pc.onnegotiationneeded = (event) => { console.log(this.kind, "peerconnection onnegotiationneeded:", event); }
-        this.pc.oniceconnectionstatechange = (event) => { console.log(this.kind, "peerconnection oniceconnectionstatechange:", this.pc.iceConnectionState); }
+        this.pc.onnegotiationneeded = (event) => { console.log(this.kind, "peerconnection onnegotiationneeded"); }
+        this.pc.onsignalingstatechange = (event) => { console.log(this.kind, "peerconnection onsignalingstatechange:", this.pc.signalingState); }
         this.pc.onicegatheringstatechange = (event) => { console.log(this.kind, "peerconnection onicegatheringstatechange:", this.pc.iceGatheringState); }
+        this.pc.oniceconnectionstatechange = (event) => { console.log(this.kind, "peerconnection oniceconnectionstatechange:", this.pc.iceConnectionState); }
         this.pc.onicecandidate = (ice) => {
             if (ice.candidate === null) {
-                console.log(this.kind, "peerconnection sending ice");
+                console.log(this.kind, "peerconnection sending offer");
                 this.ws.send(JSON.stringify({ offer: this.pc.localDescription }))
             }
         };
@@ -47,23 +51,25 @@ class Client {
 
     newDatachannel() {
         this.dc = this.pc.createDataChannel(this.kind);
-        this.dc.onopen = (event) => { console.log(this.kind, "datachannel open", event); }
-        this.dc.onclose = (event) => { console.log(this.kind, "datachannel closed", event); }
-        this.dc.onerror = (error) => { console.log(this.kind, "datachannel error", error); }
-        this.dc.onmessage = (event) => { console.log(this.kind, "datachannel message", event); }
+        this.dc.onopen = (event) => { console.log(this.kind, "datachannel open"); }
+        this.dc.onclose = (event) => { console.log(this.kind, "datachannel closed"); }
+        this.dc.onerror = (error) => { console.log(this.kind, "datachannel error"); }
+        this.dc.onmessage = (event) => { console.log(this.kind, "datachannel message"); }
     }
 
-    newWebsocket() {
-        const protocol = location.protocol === "https:" ? "wss:" : "ws:";
-        this.ws = new WebSocket(`${protocol}//${location.host}/ws?kind=${this.kind}&name=${this.name}`);
-        this.ws.onopen = (event) => { console.log(this.kind, "websocket open:", event); }
-        this.ws.onclose = (event) => { console.log(this.kind, "websocket closed:", event); }
-        this.ws.onerror = (error) => { console.log(this.kind, "websocket error:", error); }
-        this.ws.onmessage = (event) => {
-            console.log(this.kind, "websocket message", event);
-            const data = JSON.parse(event.data);
-            if (data.answer) { this.pc.setRemoteDescription(data.answer); }
-            else if (data.publishers) { listPublishers(data.publishers); }
-        };
+    async newWebsocket() {
+        return new Promise((resolve, reject) => {
+            const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+            this.ws = new WebSocket(`${protocol}//${location.host}/ws?kind=${this.kind}&name=${this.name}`);
+            this.ws.onopen = (event) => { console.log(this.kind, "websocket open:", event); resolve(); }
+            this.ws.onclose = (event) => { console.log(this.kind, "websocket closed:", event); }
+            this.ws.onerror = (error) => { console.log(this.kind, "websocket error:", error); reject(); }
+            this.ws.onmessage = (event) => {
+                console.log(this.kind, "websocket message", event);
+                const data = JSON.parse(event.data);
+                if (data.answer) { this.pc.setRemoteDescription(data.answer); }
+                else if (data.publishers) { listPublishers(data.publishers); }
+            };
+        })
     }
 }

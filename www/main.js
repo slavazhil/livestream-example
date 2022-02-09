@@ -10,6 +10,7 @@ document.getElementById("stream").addEventListener("click", async () => {
     document.getElementById("publisher-name").disabled = true;
     document.getElementById("stream").disabled = true;
     publisher = new Client("publisher", name);
+    await publisher.init();
     await publisher.publish(document.getElementById("publisher-video"));
     showStats(publisher, document.getElementById("publisher-message"));
 });
@@ -17,6 +18,7 @@ document.getElementById("stream").addEventListener("click", async () => {
 document.getElementById("watch").addEventListener("click", async () => {
     document.getElementById("watch").disabled = true;
     subscriber = new Client("subscriber");
+    await subscriber.init();
     await subscriber.subscribe(document.getElementById("subscriber-video"));
     showStats(subscriber, document.getElementById("subscriber-message"));
 });
