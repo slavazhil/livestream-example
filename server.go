@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"crypto/tls"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -15,7 +14,7 @@ import (
 )
 
 const (
-	WEBRTC_SERVER            = "https://sometestname.tk"
+	WEBRTC_SERVER            = "https://tasty.tk"
 	PUBLISHER_NAMES_INTERVAL = 1 * time.Second
 )
 
@@ -123,7 +122,6 @@ func (s *server) sendPublisherNamesToSubscribers() {
 }
 
 func (s *server) sendToWebrtcServer(kind string, message []byte) ([]byte, error) {
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	response, err := http.Post(WEBRTC_SERVER+"/"+kind, "application/json", bytes.NewBuffer(message))
 	if err != nil {
 		return nil, err

@@ -2,18 +2,18 @@ const WEBRTC_CONFIG = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] }
 
 class Client {
     constructor(kind, name) {
-        this.kind = kind; // publisher or subscriber
-        this.name = name; //publishers only
+        this.kind = kind; // publisher || subscriber
+        this.name = name; // publishers only
         this.newWebsocket();
         this.newPeerconnection();
         this.newDatachannel();
     }
 
     async publish(video) {
-        const media = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        video.srcObject = media;
-        this.pc.addTrack(media.getVideoTracks()[0]);
-        this.pc.addTrack(media.getAudioTracks()[0]);
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        video.srcObject = stream;
+        this.pc.addTrack(stream.getVideoTracks()[0]);
+        this.pc.addTrack(stream.getAudioTracks()[0]);
         this.pc.setLocalDescription(await this.pc.createOffer());
     }
 
@@ -54,13 +54,13 @@ class Client {
     }
 
     newWebsocket() {
-        // this.ws = new WebSocket(`ws://${location.host}/ws?kind=${this.kind}&name=${this.name}`);
-        this.ws = new WebSocket(`wss://${location.host}/ws?kind=${this.kind}&name=${this.name}`);
+        const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+        this.ws = new WebSocket(`${protocol}//${location.host}/ws?kind=${this.kind}&name=${this.name}`);
         this.ws.onopen = (event) => { console.log(this.kind, "websocket open:", event); }
         this.ws.onclose = (event) => { console.log(this.kind, "websocket closed:", event); }
         this.ws.onerror = (error) => { console.log(this.kind, "websocket error:", error); }
         this.ws.onmessage = (event) => {
-            // console.log(this.kind, "websocket message", event);
+            console.log(this.kind, "websocket message", event);
             const data = JSON.parse(event.data);
             if (data.answer) { this.pc.setRemoteDescription(data.answer); }
             else if (data.publishers) { listPublishers(data.publishers); }
