@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	WEBRTC_SERVER            = "https://tasty.tk"
+	WEBRTC_SERVER            = "https://sweetdream.ml"
 	PUBLISHER_NAMES_INTERVAL = 1 * time.Second
 )
 
